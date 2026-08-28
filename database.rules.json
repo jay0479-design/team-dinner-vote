@@ -1,0 +1,9 @@
+{
+  "rules": {
+    "dinner-2026-09": {
+      ".read": true,
+      ".write": true
+    },
+    "$other": { ".read": false, ".write": false }
+  }
+}
