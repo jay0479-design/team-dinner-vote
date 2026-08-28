@@ -40,14 +40,6 @@
   .desc{font-size:0.9375rem;font-weight:400;line-height:1.4375rem;color:var(--gray-t2);margin-top:0.5rem;}
   .notice{font-size:0.75rem;font-weight:500;line-height:1.125rem;color:var(--gray-t3);margin-top:0.5rem;}
 
-  .config-warn{
-    margin-top:1.25rem;background:var(--supporting-red1);border:0.0625rem solid var(--primary-pm1);
-    border-radius:var(--radius-8);padding:1rem 1.25rem;
-    font-size:0.875rem;font-weight:500;line-height:1.3125rem;color:var(--gray-t2);display:none;
-  }
-  .config-warn b{color:var(--primary-pm1);}
-  .config-warn code{font-family:ui-monospace,monospace;font-size:0.8125rem;background:var(--bg1);padding:0 0.25rem;border-radius:var(--radius-4);}
-
   .name-row{display:flex;gap:0.5rem;margin:1.5rem 0 0;}
   .name-row input{
     flex:1;min-width:0;
@@ -156,15 +148,8 @@
     <p class="eyebrow">Team Survey</p>
     <h1>9월 회식, 언제가 좋으세요?</h1>
     <p class="desc">2026년 9월 중 가능한 날짜를 모두 선택해 주세요. 주말과 추석 연휴(9.24 목 ~ 9.26 토)는 제외됩니다.</p>
-    <p class="notice">이 설문의 응답(이름·선택 날짜)은 링크를 가진 모든 참여자에게 공개됩니다. 응답 수정·삭제는 처음 제출한 기기(브라우저)에서만 가능합니다.</p>
+    <p class="notice">이 설문의 응답(이름·선택 날짜)은 링크를 가진 모든 참여자에게 공개됩니다.</p>
   </header>
-
-  <div class="config-warn" id="configWarn">
-    <b>Firebase 설정이 필요합니다.</b><br>
-    아직 백엔드가 연결되지 않아 투표가 저장되지 않습니다.
-    <code>index.html</code> 상단 스크립트의 <code>FIREBASE_CONFIG</code>에
-    본인 Firebase 프로젝트 설정값을 입력한 뒤 다시 배포해 주세요. (README 참고)
-  </div>
 
   <div class="name-row">
     <input id="nameInput" type="text" maxlength="20" placeholder="이름을 입력하세요" autocomplete="off">
@@ -227,9 +212,11 @@
   var DB_PATH="dinner-2026-09/votes";
 
   var selected=new Set();
-  var votes={};          // name -> {dates:[...], owner:"token"}
+  var votes={};          // name -> [dates]
   var prevCounts=null;
   var db=null;
+  var localMode=false;   // 백엔드 미연결 시 이 기기(localStorage)에만 저장
+  var LS_KEY="dinner-2026-09-local";
 
   var grid=document.getElementById("calGrid");
   var nameInput=document.getElementById("nameInput");
@@ -243,7 +230,6 @@
   var memberList=document.getElementById("memberList");
   var syncInfo=document.getElementById("syncInfo");
   var liveDot=document.getElementById("liveDot");
-  var configWarn=document.getElementById("configWarn");
 
   function dowOf(day){return (FIRST_DOW+day-1)%7;}
   function isSelectable(day){
@@ -258,20 +244,12 @@
   function nameKey(name){
     return encodeURIComponent(name).replace(/\./g,"%2E");
   }
-  // 기기(브라우저)별 소유권 토큰 — 본인이 제출한 응답만 수정/삭제 가능
-  function deviceToken(){
-    try{
-      var t=localStorage.getItem("dinner2026Token");
-      if(!t){
-        t=Math.random().toString(36).slice(2)+Date.now().toString(36);
-        localStorage.setItem("dinner2026Token",t);
-      }
-      return t;
-    }catch(e){return "";}
+  // 백엔드 미연결 시 사용하는 로컬(이 기기) 저장소
+  function readLocal(){
+    try{return JSON.parse(localStorage.getItem(LS_KEY))||{};}catch(e){return {};}
   }
-  function isMine(name){
-    var v=votes[name];
-    return !v||!v.owner||v.owner===deviceToken();
+  function writeLocal(obj){
+    try{localStorage.setItem(LS_KEY,JSON.stringify(obj));}catch(e){}
   }
 
   // ===== 달력 렌더 =====
@@ -332,13 +310,10 @@
     pickedInfo.textContent=arr.length?("선택: "+arr.map(fmt).join(", ")):"선택한 날짜 없음";
     var name=myName();
     var hasVote=!!(name&&votes[name]);
-    var mine=!name||isMine(name);
     saveBtn.textContent=hasVote?"응답 수정":"제출";
-    saveBtn.disabled=!db||!(arr.length&&name)||(hasVote&&!mine);
-    cancelBtn.classList.toggle("show",hasVote&&mine);
-    if(name&&hasVote&&!mine){
-      myStatus.innerHTML="<b>"+escapeHtml(name)+"</b>님의 응답은 다른 기기에서 제출되었습니다. 처음 제출한 기기에서만 수정·삭제할 수 있어요.";
-    }else if(name&&hasVote){
+    saveBtn.disabled=!(db||localMode)||!(arr.length&&name);
+    cancelBtn.classList.toggle("show",hasVote);
+    if(name&&hasVote){
       myStatus.innerHTML="<b>"+escapeHtml(name)+"</b>님의 응답이 제출되어 있습니다. 날짜를 바꿔 <b>응답 수정</b>을 누르거나 <b>응답 취소</b>로 삭제할 수 있어요.";
     }else if(name){
       myStatus.textContent=name+"님, 가능한 날짜를 선택한 뒤 제출을 눌러주세요.";
@@ -357,11 +332,9 @@
     nameLoadTimer=setTimeout(function(){
       var name=myName();
       if(name&&votes[name]){
-        selected=new Set(votes[name].dates.filter(isSelectable));
+        selected=new Set(votes[name].filter(isSelectable));
         syncSelectionToGrid();
-        toast.textContent=isMine(name)
-          ?name+"님의 기존 응답을 불러왔습니다."
-          :name+"님의 응답이 이미 있습니다. (다른 기기에서 제출됨)";
+        toast.textContent=name+"님의 기존 응답을 불러왔습니다.";
       }
       updateControls();
     },300);
@@ -370,20 +343,27 @@
   // ===== 제출 / 수정 =====
   function saveVote(){
     var name=myName();
-    if(!db||!name||!selected.size) return;
-    if(votes[name]&&!isMine(name)){
-      toast.textContent="이미 사용 중인 이름입니다. 본인 응답이라면 처음 제출한 기기에서 수정해 주세요.";
+    if((!db&&!localMode)||!name||!selected.size) return;
+    var dates=Array.from(selected).sort(function(a,b){return a-b;});
+    var existed=!!votes[name];
+    if(localMode){
+      var all=readLocal();
+      all[name]=dates;
+      writeLocal(all);
+      votes=all;
+      renderResult();
+      toast.textContent=(existed?"응답이 수정되었습니다.":"제출 완료 — 응답이 저장되었습니다.");
+      updateControls();
       return;
     }
     saveBtn.disabled=true;
     toast.textContent="저장 중…";
     db.ref(DB_PATH+"/"+nameKey(name)).set({
       name:name,
-      dates:Array.from(selected).sort(function(a,b){return a-b;}),
-      owner:deviceToken(),
+      dates:dates,
       updatedAt:Date.now()
     }).then(function(){
-      toast.textContent=(votes[name]?"응답이 수정되었습니다.":"제출 완료 — 응답이 저장되었습니다.");
+      toast.textContent=(existed?"응답이 수정되었습니다.":"제출 완료 — 응답이 저장되었습니다.");
     }).catch(function(){
       toast.textContent="저장에 실패했습니다. 네트워크 상태를 확인해 주세요.";
     }).finally(updateControls);
@@ -392,12 +372,20 @@
   // ===== 응답 취소 =====
   function cancelVote(){
     var name=myName();
-    if(!db||!name||!votes[name]) return;
-    if(!isMine(name)){
-      toast.textContent="다른 기기에서 제출된 응답은 삭제할 수 없습니다.";
+    if((!db&&!localMode)||!name||!votes[name]) return;
+    if(!window.confirm(name+"님의 응답을 삭제할까요?")) return;
+    if(localMode){
+      var all=readLocal();
+      delete all[name];
+      writeLocal(all);
+      votes=all;
+      selected.clear();
+      syncSelectionToGrid();
+      renderResult();
+      toast.textContent="응답이 취소되었습니다.";
+      updateControls();
       return;
     }
-    if(!window.confirm(name+"님의 응답을 삭제할까요?")) return;
     cancelBtn.disabled=true;
     toast.textContent="삭제 중…";
     db.ref(DB_PATH+"/"+nameKey(name)).remove().then(function(){
@@ -417,7 +405,7 @@
     var names=Object.keys(votes);
     var counts={},who={};
     names.forEach(function(n){
-      votes[n].dates.forEach(function(d){
+      votes[n].forEach(function(d){
         counts[d]=(counts[d]||0)+1;
         (who[d]=who[d]||[]).push(n);
       });
@@ -470,21 +458,29 @@
     memberList.textContent="참여자 "+names.length+"명: "+names.join(", ");
   }
 
+  // ===== 로컬 모드 (백엔드 미연결 시) =====
+  function enterLocalMode(){
+    localMode=true;
+    votes=readLocal();
+    syncInfo.textContent="공유 서버 미연결 — 응답이 이 기기에만 저장됩니다";
+    renderResult();
+    updateControls();
+  }
+
   // ===== Firebase 초기화 및 실시간 구독 =====
   function initFirebase(){
     if(!FIREBASE_CONFIG.apiKey||FIREBASE_CONFIG.apiKey==="YOUR_API_KEY"){
-      configWarn.style.display="block";
-      syncInfo.textContent="백엔드 미설정";
+      enterLocalMode();
       return;
     }
     try{
       firebase.initializeApp(FIREBASE_CONFIG);
       db=firebase.database();
     }catch(e){
-      configWarn.style.display="block";
-      syncInfo.textContent="Firebase 초기화 실패";
+      enterLocalMode();
       return;
     }
+    var migrated=false;
     // 연결 상태 표시
     db.ref(".info/connected").on("value",function(snap){
       var on=!!snap.val();
@@ -497,9 +493,20 @@
       var next={};
       Object.keys(data).forEach(function(k){
         var v=data[k];
-        if(v&&v.name&&Array.isArray(v.dates)) next[v.name]={dates:v.dates,owner:v.owner||""};
+        if(v&&v.name&&Array.isArray(v.dates)) next[v.name]=v.dates;
       });
       votes=next;
+      // 백엔드 연결 전 이 기기에 저장해 둔 응답이 있으면 서버로 1회 이관
+      if(!migrated){
+        migrated=true;
+        var loc=readLocal();
+        Object.keys(loc).forEach(function(n){
+          if(!next[n]&&Array.isArray(loc[n])&&loc[n].length){
+            db.ref(DB_PATH+"/"+nameKey(n)).set({name:n,dates:loc[n],updatedAt:Date.now()});
+          }
+        });
+        try{localStorage.removeItem(LS_KEY);}catch(e){}
+      }
       renderResult();
       updateControls();
     },function(){
