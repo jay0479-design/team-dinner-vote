@@ -3,50 +3,110 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>9월 회식 날짜 설문</title>
+<title>약속 날짜 정하기</title>
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 <style>
   /* ===== Design Tokens — Figma Component 기준점(2031-6499) 추출값 ===== */
   :root{
-    --primary-pm1:#e4002b;          /* Primary/Pm1 */
-    --primary-pm1-hover:#c40025;    /* Primary/Pm1_Hover */
-    --supporting-red1:#fdefec;      /* Supporting/Red1 */
-    --gray-t1:#0d0a11;              /* Gray/T1 */
-    --gray-t2:#404656;              /* Gray/T2 */
-    --gray-t3:#979ca3;              /* Gray/T3 */
-    --gray-t4:#bbbbbb;              /* Gray/T4 */
-    --bg1:#ffffff;                  /* Background/Bg1 */
-    --line-l1:#ced4da;              /* Line/L1 */
-    --line-l2:#e8e8ec;              /* Line/L2 */
-    --radius-4:0.25rem;             /* radius/4 */
-    --radius-8:0.5rem;              /* radius/small(8) */
-    --radius-20:1.25rem;            /* radius/20 */
+    --primary-pm1:#e4002b;
+    --primary-pm1-hover:#c40025;
+    --supporting-red1:#fdefec;
+    --gray-t1:#0d0a11;
+    --gray-t2:#404656;
+    --gray-t3:#979ca3;
+    --gray-t4:#bbbbbb;
+    --bg1:#ffffff;
+    --line-l1:#ced4da;
+    --line-l2:#e8e8ec;
+    --radius-4:0.25rem;
+    --radius-8:0.5rem;
+    --radius-20:1.25rem;
     --font-body:"Pretendard",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
   }
   *{margin:0;padding:0;box-sizing:border-box;}
   html{font-size:16px;}
   body{
-    font-family:var(--font-body);
-    background:var(--bg1);
-    color:var(--gray-t1);
-    letter-spacing:-0.0625rem;
-    -webkit-font-smoothing:antialiased;
+    font-family:var(--font-body);background:var(--bg1);color:var(--gray-t1);
+    letter-spacing:-0.0625rem;-webkit-font-smoothing:antialiased;
   }
   .wrap{max-width:45rem;margin:0 auto;padding:1.5rem 1.25rem 4rem;}
+  .hidden{display:none !important;}
 
   header{padding:1rem 0 1.5rem;border-bottom:0.125rem solid var(--gray-t1);}
   .eyebrow{font-size:0.75rem;font-weight:700;line-height:1.125rem;color:var(--primary-pm1);text-transform:uppercase;letter-spacing:0.0625rem;}
-  h1{font-size:1.25rem;font-weight:700;line-height:1.875rem;margin-top:0.375rem;}
+  h1{font-size:1.25rem;font-weight:700;line-height:1.875rem;margin-top:0.375rem;word-break:keep-all;}
   .desc{font-size:0.9375rem;font-weight:400;line-height:1.4375rem;color:var(--gray-t2);margin-top:0.5rem;}
   .notice{font-size:0.75rem;font-weight:500;line-height:1.125rem;color:var(--gray-t3);margin-top:0.5rem;}
 
-  .name-row{display:flex;gap:0.5rem;margin:1.5rem 0 0;}
-  .name-row input{
-    flex:1;min-width:0;
-    font-family:var(--font-body);font-size:0.875rem;font-weight:700;line-height:1.3125rem;
+  .config-warn{
+    margin-top:1.25rem;background:var(--supporting-red1);border:0.0625rem solid var(--primary-pm1);
+    border-radius:var(--radius-8);padding:1rem 1.25rem;
+    font-size:0.875rem;font-weight:500;line-height:1.3125rem;color:var(--gray-t2);display:none;
+  }
+  .config-warn b{color:var(--primary-pm1);}
+  .config-warn code{font-family:ui-monospace,monospace;font-size:0.8125rem;background:var(--bg1);padding:0 0.25rem;border-radius:var(--radius-4);}
+
+  .field-label{display:block;font-size:0.75rem;font-weight:700;line-height:1.125rem;color:var(--gray-t2);margin:1.25rem 0 0.375rem;}
+  .input-text,.input-select{
+    width:100%;font-family:var(--font-body);font-size:0.875rem;font-weight:700;line-height:1.3125rem;
     letter-spacing:-0.0625rem;color:var(--gray-t1);
     padding:0.75rem 1rem;border:0.0625rem solid var(--line-l1);border-radius:var(--radius-8);
-    background:var(--bg1);outline:none;
+    background:var(--bg1);outline:none;appearance:none;
+  }
+  .input-text::placeholder{color:var(--gray-t4);font-weight:400;}
+  .input-text:focus,.input-select:focus{border-color:var(--gray-t1);}
+  .row-2{display:flex;gap:0.5rem;}
+  .row-2>*{flex:1;}
+  .check-row{display:flex;align-items:center;gap:0.5rem;margin-top:0.625rem;font-size:0.875rem;font-weight:500;color:var(--gray-t2);cursor:pointer;}
+  .check-row input{width:1rem;height:1rem;accent-color:var(--primary-pm1);cursor:pointer;}
+
+  .btn{
+    font-family:var(--font-body);font-size:1.0625rem;font-weight:700;line-height:1.625rem;
+    letter-spacing:-0.125rem;color:var(--bg1);background:var(--primary-pm1);
+    border:none;border-radius:var(--radius-8);padding:0.75rem 1.75rem;cursor:pointer;transition:background .12s;
+  }
+  .btn:hover{background:var(--primary-pm1-hover);}
+  .btn:disabled{background:var(--gray-t4);cursor:not-allowed;}
+  .btn-block{width:100%;margin-top:1.5rem;}
+  .btn-sub{
+    font-family:var(--font-body);font-size:0.875rem;font-weight:700;letter-spacing:-0.0625rem;
+    color:var(--gray-t2);background:var(--bg1);border:0.0625rem solid var(--line-l1);
+    border-radius:var(--radius-8);padding:0.625rem 1rem;cursor:pointer;
+  }
+  .btn-sub:hover{border-color:var(--gray-t2);}
+  .btn-danger{
+    font-family:var(--font-body);font-size:0.875rem;font-weight:700;letter-spacing:-0.0625rem;
+    color:var(--primary-pm1);background:var(--bg1);border:0.0625rem solid var(--primary-pm1);
+    border-radius:var(--radius-8);padding:0.625rem 1rem;cursor:pointer;display:none;
+  }
+  .btn-danger:hover{background:var(--supporting-red1);}
+  .btn-danger.show{display:inline-block;}
+
+  .share-box{
+    margin-top:1.25rem;background:var(--supporting-red1);border-radius:var(--radius-8);padding:1rem 1.25rem;
+  }
+  .share-box p{font-size:0.75rem;font-weight:700;color:var(--primary-pm1);margin-bottom:0.5rem;}
+  .share-row{display:flex;gap:0.5rem;}
+  .share-row input{
+    flex:1;min-width:0;font-family:ui-monospace,monospace;font-size:0.8125rem;color:var(--gray-t2);
+    padding:0.625rem 0.75rem;border:0.0625rem solid var(--line-l1);border-radius:var(--radius-8);background:var(--bg1);outline:none;
+  }
+  .recent{margin-top:2rem;}
+  .recent h2{font-size:1rem;font-weight:700;line-height:1.5rem;margin-bottom:0.625rem;}
+  .recent a{
+    display:block;font-size:0.875rem;font-weight:500;line-height:1.3125rem;color:var(--gray-t2);
+    text-decoration:none;padding:0.625rem 0.75rem;border:0.0625rem solid var(--line-l2);
+    border-radius:var(--radius-8);margin-bottom:0.375rem;
+  }
+  .recent a:hover{border-color:var(--gray-t2);}
+  .recent a b{color:var(--gray-t1);}
+  .recent a span{color:var(--gray-t3);font-size:0.75rem;}
+
+  .name-row{display:flex;gap:0.5rem;margin:1.5rem 0 0;}
+  .name-row input{
+    flex:1;min-width:0;font-family:var(--font-body);font-size:0.875rem;font-weight:700;line-height:1.3125rem;
+    letter-spacing:-0.0625rem;color:var(--gray-t1);
+    padding:0.75rem 1rem;border:0.0625rem solid var(--line-l1);border-radius:var(--radius-8);background:var(--bg1);outline:none;
   }
   .name-row input::placeholder{color:var(--gray-t4);font-weight:400;}
   .name-row input:focus{border-color:var(--gray-t1);}
@@ -69,7 +129,7 @@
   }
   .cell.empty{visibility:hidden;}
   .cell.off{color:var(--gray-t4);}
-  .cell .tag{font-size:0.625rem;font-weight:700;line-height:0.875rem;color:var(--gray-t4);}
+  .cell .tag{font-size:0.625rem;font-weight:700;line-height:0.875rem;color:var(--gray-t4);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0 0.125rem;}
   .cell.holiday{color:var(--gray-t4);background:var(--supporting-red1);}
   .cell.holiday .tag{color:var(--primary-pm1);}
   .cell.pick{cursor:pointer;border-color:var(--line-l2);transition:border-color .12s,background .12s;}
@@ -78,31 +138,12 @@
   .cell.pick.on{background:var(--primary-pm1);border-color:var(--primary-pm1);color:var(--bg1);font-weight:700;}
   .cell .cnt{font-size:0.625rem;font-weight:700;line-height:0.875rem;color:var(--primary-pm1);min-height:0.875rem;}
   .cell.pick.on .cnt{color:var(--bg1);}
-  @keyframes bump{
-    0%{background:var(--supporting-red1);}
-    100%{background:transparent;}
-  }
+  @keyframes bump{0%{background:var(--supporting-red1);}100%{background:transparent;}}
   .cell.pick.bump{animation:bump 1.2s ease-out;}
   .cell.pick.on.bump{animation:none;}
 
   .submit-row{display:flex;align-items:center;gap:0.5rem;margin-top:1.25rem;flex-wrap:wrap;}
   .picked-info{font-size:0.75rem;font-weight:500;line-height:1.125rem;color:var(--gray-t2);flex:1 1 100%;}
-  .btn{
-    font-family:var(--font-body);font-size:1.0625rem;font-weight:700;line-height:1.625rem;
-    letter-spacing:-0.125rem;color:var(--bg1);background:var(--primary-pm1);
-    border:none;border-radius:var(--radius-8);padding:0.75rem 1.75rem;cursor:pointer;
-    transition:background .12s;
-  }
-  .btn:hover{background:var(--primary-pm1-hover);}
-  .btn:disabled{background:var(--gray-t4);cursor:not-allowed;}
-  .btn-danger{
-    font-family:var(--font-body);font-size:1.0625rem;font-weight:700;line-height:1.625rem;
-    letter-spacing:-0.125rem;
-    color:var(--primary-pm1);background:var(--bg1);border:0.0625rem solid var(--primary-pm1);
-    border-radius:var(--radius-8);padding:0.6875rem 1.6875rem;cursor:pointer;display:none;
-  }
-  .btn-danger:hover{background:var(--supporting-red1);}
-  .btn-danger.show{display:inline-block;}
   .spacer{flex:1;}
   .toast{font-size:0.75rem;font-weight:700;color:var(--primary-pm1);margin-top:0.5rem;min-height:1.125rem;}
 
@@ -129,6 +170,8 @@
   }
   .best b{color:var(--primary-pm1);font-weight:700;}
   .members{margin-top:1.25rem;font-size:0.75rem;font-weight:500;line-height:1.125rem;color:var(--gray-t3);}
+  .foot-link{margin-top:2rem;font-size:0.75rem;font-weight:500;}
+  .foot-link a{color:var(--gray-t3);}
 
   @media (min-width:48rem){
     .wrap{padding-top:3rem;}
@@ -145,43 +188,85 @@
 </head>
 <body>
 <div class="wrap">
-  <header>
-    <p class="eyebrow">Team Survey</p>
-    <h1>9월 회식, 언제가 좋으세요?</h1>
-    <p class="desc">2026년 9월 중 가능한 날짜를 모두 선택해 주세요. 주말과 추석 연휴(9.24 목 ~ 9.26 토)는 제외됩니다.</p>
-    <p class="notice">이 설문의 응답(이름·선택 날짜)은 링크를 가진 모든 참여자에게 공개됩니다.</p>
-  </header>
 
-  <div class="name-row">
-    <input id="nameInput" type="text" maxlength="20" placeholder="이름을 입력하세요" autocomplete="off">
-  </div>
-  <p class="my-status" id="myStatus"></p>
-
-  <section class="cal" aria-label="2026년 9월 달력">
-    <div class="cal-head">
-      <span class="cal-month">2026년 9월</span>
-      <span class="cal-hint">숫자 아래는 현재 득표수</span>
+  <!-- ===== 생성 화면 ===== -->
+  <div id="viewCreate" class="hidden">
+    <header>
+      <p class="eyebrow">Date Picker</p>
+      <h1>약속 날짜 정하기</h1>
+      <p class="desc">달력을 만들어 링크를 공유하면, 참여자들이 가능한 날짜에 투표하고 결과를 실시간으로 함께 봅니다.</p>
+    </header>
+    <div class="config-warn" id="configWarnCreate">
+      <b>Firebase 설정이 필요합니다.</b><br>
+      <code>index.html</code>의 <code>FIREBASE_CONFIG</code>에 프로젝트 설정값을 입력한 뒤 배포해 주세요. (README 참고)
     </div>
-    <div class="grid" id="calGrid" role="grid"></div>
-  </section>
-
-  <div class="submit-row">
-    <span class="picked-info" id="pickedInfo">선택한 날짜 없음</span>
-    <button class="btn-danger" id="cancelBtn" type="button">응답 취소</button>
-    <span class="spacer"></span>
-    <button class="btn" id="saveBtn" type="button" disabled>제출</button>
-  </div>
-  <p class="toast" id="toast" role="status" aria-live="polite"></p>
-
-  <section class="result" aria-label="투표 결과">
-    <div class="result-head">
-      <h2>실시간 결과</h2>
-      <span class="live"><span class="live-dot" id="liveDot"></span><span id="syncInfo">연결 대기 중</span></span>
+    <label class="field-label" for="createTitle">약속 이름</label>
+    <input class="input-text" id="createTitle" type="text" maxlength="40" placeholder="예: 9월 팀 회식, 동창 모임">
+    <label class="field-label">대상 연월</label>
+    <div class="row-2">
+      <select class="input-select" id="createYear"></select>
+      <select class="input-select" id="createMonth"></select>
     </div>
-    <div id="resultBody"><p class="empty-msg">아직 응답이 없습니다. 첫 번째로 제출해 보세요.</p></div>
-    <div id="bestBox"></div>
-    <p class="members" id="memberList"></p>
-  </section>
+    <label class="field-label">선택 제외 규칙</label>
+    <label class="check-row"><input type="checkbox" id="createExWeekend" checked>주말(토·일) 제외</label>
+    <label class="check-row"><input type="checkbox" id="createExHoliday" checked>대한민국 공휴일 제외 (자동 조회)</label>
+    <button class="btn btn-block" id="createBtn" type="button">캘린더 만들기</button>
+    <p class="toast" id="createToast" role="status" aria-live="polite"></p>
+    <div class="share-box hidden" id="shareBox">
+      <p>생성 완료! 이 링크를 참여자에게 공유하세요.</p>
+      <div class="share-row">
+        <input id="shareUrl" type="text" readonly>
+        <button class="btn-sub" id="copyBtn" type="button">복사</button>
+      </div>
+    </div>
+    <div class="recent hidden" id="recentBox">
+      <h2>이 기기에서 만든 캘린더</h2>
+      <div id="recentList"></div>
+    </div>
+    <p class="notice">응답(이름·선택 날짜)은 링크를 가진 모든 사람에게 공개됩니다. 민감한 정보는 입력하지 마세요.</p>
+  </div>
+
+  <!-- ===== 투표 화면 ===== -->
+  <div id="viewPoll" class="hidden">
+    <header>
+      <p class="eyebrow">Date Picker</p>
+      <h1 id="pollTitle">불러오는 중…</h1>
+      <p class="desc" id="pollDesc"></p>
+      <p class="notice">응답(이름·선택 날짜)은 링크를 가진 모든 참여자에게 공개됩니다.</p>
+    </header>
+    <div class="config-warn" id="configWarnPoll">
+      <b>Firebase 설정이 필요합니다.</b> 백엔드가 연결되지 않아 투표를 불러올 수 없습니다.
+    </div>
+    <div class="name-row">
+      <input id="nameInput" type="text" maxlength="20" placeholder="이름을 입력하세요" autocomplete="off">
+    </div>
+    <p class="my-status" id="myStatus"></p>
+    <section class="cal" aria-label="달력">
+      <div class="cal-head">
+        <span class="cal-month" id="calMonthLabel"></span>
+        <span class="cal-hint">숫자 아래는 현재 득표수</span>
+      </div>
+      <div class="grid" id="calGrid" role="grid"></div>
+    </section>
+    <div class="submit-row">
+      <span class="picked-info" id="pickedInfo">선택한 날짜 없음</span>
+      <button class="btn-danger" id="cancelBtn" type="button">응답 취소</button>
+      <span class="spacer"></span>
+      <button class="btn" id="saveBtn" type="button" disabled>제출</button>
+    </div>
+    <p class="toast" id="toast" role="status" aria-live="polite"></p>
+    <section class="result" aria-label="투표 결과">
+      <div class="result-head">
+        <h2>실시간 결과</h2>
+        <span class="live"><span class="live-dot" id="liveDot"></span><span id="syncInfo">연결 대기 중</span></span>
+      </div>
+      <div id="resultBody"><p class="empty-msg">아직 응답이 없습니다. 첫 번째로 제출해 보세요.</p></div>
+      <div id="bestBox"></div>
+      <p class="members" id="memberList"></p>
+    </section>
+    <p class="foot-link"><a id="newPollLink" href="./?create=1">+ 새 캘린더 만들기</a> · <button class="btn-sub" id="sharePollBtn" type="button" style="padding:0.25rem 0.625rem;font-size:0.75rem;">이 캘린더 링크 복사</button></p>
+  </div>
+
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -191,9 +276,8 @@
   "use strict";
 
   /* =========================================================
-     [필수 설정] 본인 Firebase 프로젝트의 웹 앱 구성값을 입력하세요.
-     Firebase 콘솔 > 프로젝트 설정 > 일반 > 내 앱 > SDK 설정 및 구성
-     자세한 순서는 README_배포가이드.md 참고
+     [필수 설정] 본인 Firebase 프로젝트의 웹 앱 구성값 입력
+     (README_배포가이드.md 참고)
   ========================================================= */
   var FIREBASE_CONFIG={
     apiKey:"AIzaSyCt49JhG33OA_A-vA2u6goH2DS5J9aFvaI",
@@ -202,89 +286,242 @@
     projectId:"team-dinner-vote-2609",
     appId:"1:1087698652084:web:a6ebae574c513d0349c0e1"
   };
+
+  // 구버전에서 공유된 링크(쿼리 없는 주소)로 오면 기존 9월 회식 설문을 그대로 보여줌
+  var LEGACY_POLL="dinner09";
   /* ========================================================= */
 
-  // ===== 2026년 9월 고정 데이터 =====
-  var DAYS=30;
-  var FIRST_DOW=2; // 2026-09-01 = 화요일 (0=일)
-  // 추석 연휴: 9.24(목)~9.26(토), 당일 9.25(금). 대체공휴일 없음.
-  var HOLIDAYS={24:"추석연휴",25:"추석",26:"추석연휴"};
+  var HOLIDAY_API="https://date.nager.at/api/v3/PublicHolidays/"; // +{year}/KR
   var DOW_LABEL=["일","월","화","수","목","금","토"];
-  var DB_PATH="dinner-2026-09/votes";
+  var RECENT_KEY="datepicker-recent";
 
+  var db=null, configured=false;
+  var poll=null;           // {id, meta}
   var selected=new Set();
-  var votes={};          // name -> [dates]
+  var votes={};
   var prevCounts=null;
-  var db=null;
-  var localMode=false;   // 백엔드 미연결 시 이 기기(localStorage)에만 저장
-  var LS_KEY="dinner-2026-09-local";
 
-  var grid=document.getElementById("calGrid");
-  var nameInput=document.getElementById("nameInput");
-  var saveBtn=document.getElementById("saveBtn");
-  var cancelBtn=document.getElementById("cancelBtn");
-  var pickedInfo=document.getElementById("pickedInfo");
-  var myStatus=document.getElementById("myStatus");
-  var toast=document.getElementById("toast");
-  var resultBody=document.getElementById("resultBody");
-  var bestBox=document.getElementById("bestBox");
-  var memberList=document.getElementById("memberList");
-  var syncInfo=document.getElementById("syncInfo");
-  var liveDot=document.getElementById("liveDot");
+  function $(id){return document.getElementById(id);}
+  function escapeHtml(s){
+    return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+  }
+  function nameKey(name){return encodeURIComponent(name).replace(/\./g,"%2E");}
+  function pad2(n){return (n<10?"0":"")+n;}
 
-  function dowOf(day){return (FIRST_DOW+day-1)%7;}
+  // ===== Firebase =====
+  function initFirebase(){
+    if(!FIREBASE_CONFIG.apiKey||FIREBASE_CONFIG.apiKey==="YOUR_API_KEY") return false;
+    try{
+      firebase.initializeApp(FIREBASE_CONFIG);
+      db=firebase.database();
+      return true;
+    }catch(e){return false;}
+  }
+
+  // ===== 라우팅 =====
+  function route(){
+    var params=new URLSearchParams(location.search);
+    var pid=params.get("p");
+    if(!pid&&!params.has("create")&&LEGACY_POLL) pid=LEGACY_POLL;
+    configured=initFirebase();
+    if(pid){
+      $("viewPoll").classList.remove("hidden");
+      if(!configured){$("configWarnPoll").style.display="block";$("pollTitle").textContent="백엔드 미설정";return;}
+      loadPoll(pid);
+    }else{
+      $("viewCreate").classList.remove("hidden");
+      if(!configured) $("configWarnCreate").style.display="block";
+      setupCreate();
+    }
+  }
+
+  /* =========================================================
+     생성 화면
+  ========================================================= */
+  function setupCreate(){
+    var now=new Date();
+    var ySel=$("createYear"), mSel=$("createMonth");
+    for(var y=now.getFullYear();y<=now.getFullYear()+2;y++){
+      var o=document.createElement("option");o.value=y;o.textContent=y+"년";ySel.appendChild(o);
+    }
+    for(var m=1;m<=12;m++){
+      var o2=document.createElement("option");o2.value=m;o2.textContent=m+"월";mSel.appendChild(o2);
+    }
+    // 기본값: 다음 달
+    var next=new Date(now.getFullYear(),now.getMonth()+1,1);
+    ySel.value=next.getFullYear();mSel.value=next.getMonth()+1;
+
+    $("createBtn").addEventListener("click",createPoll);
+    $("copyBtn").addEventListener("click",function(){copyText($("shareUrl").value,$("createToast"));});
+    renderRecent();
+  }
+
+  async function fetchHolidays(year,month){
+    // Nager.Date: 무료 공휴일 API. 실패 시 null 반환(생성자에게 알림)
+    var res=await fetch(HOLIDAY_API+year+"/KR");
+    if(!res.ok) throw new Error("holiday api "+res.status);
+    var list=await res.json();
+    var out={};
+    list.forEach(function(h){
+      // h.date="YYYY-MM-DD", h.localName="추석"
+      var parts=h.date.split("-");
+      if(Number(parts[1])===month) out[Number(parts[2])]=h.localName||h.name;
+    });
+    return out;
+  }
+
+  async function createPoll(){
+    if(!configured){$("createToast").textContent="Firebase 설정 후 사용할 수 있습니다.";return;}
+    var title=$("createTitle").value.trim()||"약속 날짜 정하기";
+    var year=Number($("createYear").value), month=Number($("createMonth").value);
+    var exW=$("createExWeekend").checked, exH=$("createExHoliday").checked;
+    $("createBtn").disabled=true;
+    $("createToast").textContent="생성 중…";
+
+    var holidays={}, holidaySource="none";
+    if(exH){
+      try{
+        holidays=await fetchHolidays(year,month);
+        holidaySource="nager";
+      }catch(e){
+        if(!window.confirm("공휴일 정보를 불러오지 못했습니다.\n주말만 제외한 채로 만들까요? (취소 시 생성 중단)")){
+          $("createBtn").disabled=false;$("createToast").textContent="생성을 취소했습니다.";return;
+        }
+        exH=false;
+      }
+    }
+
+    var id="";
+    var chars="abcdefghijklmnopqrstuvwxyz0123456789";
+    var rand=new Uint8Array(8);crypto.getRandomValues(rand);
+    for(var i=0;i<8;i++) id+=chars[rand[i]%chars.length];
+
+    var meta={
+      title:title,year:year,month:month,
+      excludeWeekends:exW,excludeHolidays:exH,
+      holidays:holidays,holidaySource:holidaySource,
+      createdAt:Date.now()
+    };
+    db.ref("polls/"+id+"/meta").set(meta).then(function(){
+      var url=location.origin+location.pathname+"?p="+id;
+      $("shareUrl").value=url;
+      $("shareBox").classList.remove("hidden");
+      $("createToast").textContent="";
+      saveRecent(id,title,year,month);
+      renderRecent();
+      $("createBtn").disabled=false;
+    }).catch(function(){
+      $("createToast").textContent="생성에 실패했습니다. DB 규칙과 네트워크를 확인하세요.";
+      $("createBtn").disabled=false;
+    });
+  }
+
+  function saveRecent(id,title,year,month){
+    try{
+      var list=JSON.parse(localStorage.getItem(RECENT_KEY)||"[]");
+      list.unshift({id:id,title:title,year:year,month:month});
+      localStorage.setItem(RECENT_KEY,JSON.stringify(list.slice(0,10)));
+    }catch(e){}
+  }
+  function renderRecent(){
+    var list=[];
+    try{list=JSON.parse(localStorage.getItem(RECENT_KEY)||"[]");}catch(e){}
+    if(!list.length) return;
+    $("recentBox").classList.remove("hidden");
+    $("recentList").innerHTML=list.map(function(r){
+      return '<a href="?p='+encodeURIComponent(r.id)+'"><b>'+escapeHtml(r.title)+'</b> <span>'+r.year+"년 "+r.month+"월</span></a>";
+    }).join("");
+  }
+
+  function copyText(text,toastEl){
+    function done(ok){toastEl.textContent=ok?"링크를 복사했습니다.":"복사에 실패했습니다. 직접 선택해 복사해 주세요.";}
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(function(){done(true);},function(){done(false);});
+    }else{done(false);}
+  }
+
+  /* =========================================================
+     투표 화면
+  ========================================================= */
+  var P={year:0,month:0,daysInMonth:0,firstDow:0,holidays:{},exW:true,exH:true};
+  var today=new Date();today.setHours(0,0,0,0);
+
+  function loadPoll(pid){
+    db.ref("polls/"+pid+"/meta").once("value").then(function(snap){
+      var meta=snap.val();
+      if(!meta){
+        $("pollTitle").textContent="캘린더를 찾을 수 없습니다";
+        $("pollDesc").innerHTML='링크가 정확한지 확인해 주세요. <a href="./?create=1">새 캘린더 만들기</a>';
+        return;
+      }
+      poll={id:pid,meta:meta};
+      P.year=meta.year;P.month=meta.month;
+      P.daysInMonth=new Date(meta.year,meta.month,0).getDate();
+      P.firstDow=new Date(meta.year,meta.month-1,1).getDay();
+      P.holidays=meta.holidays||{};
+      P.exW=!!meta.excludeWeekends;P.exH=!!meta.excludeHolidays;
+
+      document.title=meta.title+" — 약속 날짜 정하기";
+      $("pollTitle").textContent=meta.title;
+      var rules=[];
+      if(P.exW)rules.push("주말");
+      if(P.exH)rules.push("공휴일");
+      $("pollDesc").textContent=meta.year+"년 "+meta.month+"월 중 가능한 날짜를 모두 선택해 주세요."
+        +(rules.length?(" "+rules.join("·")+"은 제외됩니다."):"")
+        +(P.exH&&meta.holidaySource!=="nager"?" (공휴일 자동 조회 실패로 주말만 제외됨)":"");
+      $("calMonthLabel").textContent=meta.year+"년 "+meta.month+"월";
+
+      buildCalendar();
+      bindPollEvents();
+      subscribe();
+    }).catch(function(){
+      $("pollTitle").textContent="불러오기 실패";
+      $("pollDesc").textContent="네트워크 또는 DB 규칙을 확인해 주세요.";
+    });
+  }
+
+  function dowOf(day){return (P.firstDow+day-1)%7;}
+  function isPast(day){return new Date(P.year,P.month-1,day)<today;}
   function isSelectable(day){
     var d=dowOf(day);
-    if(d===0||d===6) return false;
-    if(HOLIDAYS[day]) return false;
+    if(P.exW&&(d===0||d===6)) return false;
+    if(P.exH&&P.holidays[day]) return false;
+    if(isPast(day)) return false;
     return true;
   }
-  function fmt(day){return "9/"+day+"("+DOW_LABEL[dowOf(day)]+")";}
-  function myName(){return nameInput.value.trim();}
-  // Firebase 키에 쓸 수 없는 문자(. # $ [ ] /) 처리
-  function nameKey(name){
-    return encodeURIComponent(name).replace(/\./g,"%2E");
-  }
-  // 백엔드 미연결 시 사용하는 로컬(이 기기) 저장소
-  function readLocal(){
-    try{return JSON.parse(localStorage.getItem(LS_KEY))||{};}catch(e){return {};}
-  }
-  function writeLocal(obj){
-    try{localStorage.setItem(LS_KEY,JSON.stringify(obj));}catch(e){}
-  }
+  function fmt(day){return P.month+"/"+day+"("+DOW_LABEL[dowOf(day)]+")";}
+  function myName(){return $("nameInput").value.trim();}
 
-  // ===== 달력 렌더 =====
   function buildCalendar(){
+    var grid=$("calGrid");
     grid.innerHTML="";
     DOW_LABEL.forEach(function(l,i){
       var el=document.createElement("div");
       el.className="dow"+(i===0?" sun":"");
-      el.textContent=l;
-      grid.appendChild(el);
+      el.textContent=l;grid.appendChild(el);
     });
-    for(var i=0;i<FIRST_DOW;i++){
-      var e=document.createElement("div");
-      e.className="cell empty";
-      grid.appendChild(e);
+    for(var i=0;i<P.firstDow;i++){
+      var e=document.createElement("div");e.className="cell empty";grid.appendChild(e);
     }
-    for(var day=1;day<=DAYS;day++){
-      var cell=document.createElement(isSelectable(day)?"button":"div");
+    for(var day=1;day<=P.daysInMonth;day++){
+      var ok=isSelectable(day);
+      var cell=document.createElement(ok?"button":"div");
       var d=dowOf(day);
-      var cls="cell";
-      var tag="";
-      if(HOLIDAYS[day]){cls+=" holiday";tag=HOLIDAYS[day];}
-      else if(d===0||d===6){cls+=" off";tag=(d===0?"일요일":"토요일");}
+      var cls="cell", tag="";
+      if(P.exH&&P.holidays[day]){cls+=" holiday";tag=P.holidays[day];}
+      else if(P.exW&&(d===0||d===6)){cls+=" off";tag=(d===0?"일요일":"토요일");}
+      else if(isPast(day)){cls+=" off";tag="지남";}
       else cls+=" pick";
       cell.className=cls;
       cell.dataset.day=day;
       var html="<span>"+day+"</span>";
-      if(tag) html+='<span class="tag">'+tag+"</span>";
+      if(tag) html+='<span class="tag">'+escapeHtml(tag)+"</span>";
       else html+='<span class="cnt" data-cnt="'+day+'"></span>';
       cell.innerHTML=html;
-      if(isSelectable(day)){
+      if(ok){
         cell.type="button";
         cell.setAttribute("aria-pressed","false");
-        cell.setAttribute("aria-label","9월 "+day+"일 "+DOW_LABEL[d]+"요일 선택");
+        cell.setAttribute("aria-label",P.month+"월 "+day+"일 "+DOW_LABEL[d]+"요일 선택");
         cell.addEventListener("click",onPick);
       }
       grid.appendChild(cell);
@@ -298,110 +535,106 @@
     updateControls();
   }
   function syncSelectionToGrid(){
-    grid.querySelectorAll(".cell.pick").forEach(function(c){
+    $("calGrid").querySelectorAll(".cell.pick").forEach(function(c){
       var on=selected.has(Number(c.dataset.day));
       c.classList.toggle("on",on);
       c.setAttribute("aria-pressed",String(on));
     });
   }
-
-  // ===== 컨트롤 상태 =====
   function updateControls(){
     var arr=Array.from(selected).sort(function(a,b){return a-b;});
-    pickedInfo.textContent=arr.length?("선택: "+arr.map(fmt).join(", ")):"선택한 날짜 없음";
+    $("pickedInfo").textContent=arr.length?("선택: "+arr.map(fmt).join(", ")):"선택한 날짜 없음";
     var name=myName();
     var hasVote=!!(name&&votes[name]);
-    saveBtn.textContent=hasVote?"응답 수정":"제출";
-    saveBtn.disabled=!(db||localMode)||!(arr.length&&name);
-    cancelBtn.classList.toggle("show",hasVote);
+    $("saveBtn").textContent=hasVote?"응답 수정":"제출";
+    $("saveBtn").disabled=!db||!(arr.length&&name);
+    $("cancelBtn").classList.toggle("show",hasVote);
     if(name&&hasVote){
-      myStatus.innerHTML="<b>"+escapeHtml(name)+"</b>님의 응답이 제출되어 있습니다. 날짜를 바꿔 <b>응답 수정</b>을 누르거나 <b>응답 취소</b>로 삭제할 수 있어요.";
+      $("myStatus").innerHTML="<b>"+escapeHtml(name)+"</b>님의 응답이 제출되어 있습니다. 날짜를 바꿔 <b>응답 수정</b>을 누르거나 <b>응답 취소</b>로 삭제할 수 있어요.";
     }else if(name){
-      myStatus.textContent=name+"님, 가능한 날짜를 선택한 뒤 제출을 눌러주세요.";
+      $("myStatus").textContent=name+"님, 가능한 날짜를 선택한 뒤 제출을 눌러주세요.";
     }else{
-      myStatus.textContent="";
+      $("myStatus").textContent="";
     }
   }
-  function escapeHtml(s){
-    return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+
+  function bindPollEvents(){
+    var nameLoadTimer=null;
+    $("nameInput").addEventListener("input",function(){
+      clearTimeout(nameLoadTimer);
+      nameLoadTimer=setTimeout(function(){
+        var name=myName();
+        if(name&&votes[name]){
+          selected=new Set(votes[name].filter(isSelectable));
+          syncSelectionToGrid();
+          $("toast").textContent=name+"님의 기존 응답을 불러왔습니다.";
+        }
+        updateControls();
+      },300);
+    });
+    $("saveBtn").addEventListener("click",saveVote);
+    $("cancelBtn").addEventListener("click",cancelVote);
+    $("sharePollBtn").addEventListener("click",function(){
+      copyText(location.origin+location.pathname+"?p="+poll.id,$("toast"));
+    });
   }
 
-  // 이름 입력 시: 기존 응답이 있으면 달력에 불러오기
-  var nameLoadTimer=null;
-  nameInput.addEventListener("input",function(){
-    clearTimeout(nameLoadTimer);
-    nameLoadTimer=setTimeout(function(){
-      var name=myName();
-      if(name&&votes[name]){
-        selected=new Set(votes[name].filter(isSelectable));
-        syncSelectionToGrid();
-        toast.textContent=name+"님의 기존 응답을 불러왔습니다.";
-      }
-      updateControls();
-    },300);
-  });
-
-  // ===== 제출 / 수정 =====
   function saveVote(){
     var name=myName();
-    if((!db&&!localMode)||!name||!selected.size) return;
-    var dates=Array.from(selected).sort(function(a,b){return a-b;});
-    var existed=!!votes[name];
-    if(localMode){
-      var all=readLocal();
-      all[name]=dates;
-      writeLocal(all);
-      votes=all;
-      renderResult();
-      toast.textContent=(existed?"응답이 수정되었습니다.":"제출 완료 — 응답이 저장되었습니다.");
-      updateControls();
-      return;
-    }
-    saveBtn.disabled=true;
-    toast.textContent="저장 중…";
-    db.ref(DB_PATH+"/"+nameKey(name)).set({
+    if(!db||!name||!selected.size) return;
+    $("saveBtn").disabled=true;
+    $("toast").textContent="저장 중…";
+    db.ref("polls/"+poll.id+"/votes/"+nameKey(name)).set({
       name:name,
-      dates:dates,
+      dates:Array.from(selected).sort(function(a,b){return a-b;}),
       updatedAt:Date.now()
     }).then(function(){
-      toast.textContent=(existed?"응답이 수정되었습니다.":"제출 완료 — 응답이 저장되었습니다.");
+      $("toast").textContent=(votes[name]?"응답이 수정되었습니다.":"제출 완료 — 응답이 저장되었습니다.");
     }).catch(function(){
-      toast.textContent="저장에 실패했습니다. 네트워크 상태를 확인해 주세요.";
+      $("toast").textContent="저장에 실패했습니다. 네트워크 상태를 확인해 주세요.";
     }).finally(updateControls);
   }
 
-  // ===== 응답 취소 =====
   function cancelVote(){
     var name=myName();
-    if((!db&&!localMode)||!name||!votes[name]) return;
+    if(!db||!name||!votes[name]) return;
     if(!window.confirm(name+"님의 응답을 삭제할까요?")) return;
-    if(localMode){
-      var all=readLocal();
-      delete all[name];
-      writeLocal(all);
-      votes=all;
+    $("cancelBtn").disabled=true;
+    $("toast").textContent="삭제 중…";
+    db.ref("polls/"+poll.id+"/votes/"+nameKey(name)).remove().then(function(){
       selected.clear();
       syncSelectionToGrid();
-      renderResult();
-      toast.textContent="응답이 취소되었습니다.";
-      updateControls();
-      return;
-    }
-    cancelBtn.disabled=true;
-    toast.textContent="삭제 중…";
-    db.ref(DB_PATH+"/"+nameKey(name)).remove().then(function(){
-      selected.clear();
-      syncSelectionToGrid();
-      toast.textContent="응답이 취소되었습니다.";
+      $("toast").textContent="응답이 취소되었습니다.";
     }).catch(function(){
-      toast.textContent="삭제에 실패했습니다. 잠시 후 다시 시도해 주세요.";
+      $("toast").textContent="삭제에 실패했습니다. 잠시 후 다시 시도해 주세요.";
     }).finally(function(){
-      cancelBtn.disabled=false;
+      $("cancelBtn").disabled=false;
       updateControls();
     });
   }
 
-  // ===== 결과 렌더 (+변경 하이라이트) =====
+  function subscribe(){
+    db.ref(".info/connected").on("value",function(snap){
+      var on=!!snap.val();
+      $("liveDot").classList.toggle("on",on);
+      $("syncInfo").textContent=on?"실시간 연결됨":"연결 끊김 — 재연결 중";
+    });
+    db.ref("polls/"+poll.id+"/votes").on("value",function(snap){
+      var data=snap.val()||{};
+      var next={};
+      Object.keys(data).forEach(function(k){
+        var v=data[k];
+        if(v&&v.name&&Array.isArray(v.dates)) next[v.name]=v.dates;
+      });
+      votes=next;
+      renderResult();
+      updateControls();
+    },function(){
+      $("syncInfo").textContent="데이터 구독 실패 — DB 규칙을 확인하세요";
+      $("liveDot").classList.remove("on");
+    });
+  }
+
   function renderResult(){
     var names=Object.keys(votes);
     var counts={},who={};
@@ -411,28 +644,24 @@
         (who[d]=who[d]||[]).push(n);
       });
     });
-    grid.querySelectorAll(".cnt").forEach(function(el){
+    $("calGrid").querySelectorAll(".cnt").forEach(function(el){
       var day=Number(el.dataset.cnt);
       var c=counts[day]||0;
       el.textContent=c?c+"표":"";
       if(prevCounts&&(prevCounts[day]||0)!==c){
         var cell=el.closest(".cell");
-        if(cell){
-          cell.classList.remove("bump");
-          void cell.offsetWidth;
-          cell.classList.add("bump");
-        }
+        if(cell){cell.classList.remove("bump");void cell.offsetWidth;cell.classList.add("bump");}
       }
     });
     if(prevCounts&&JSON.stringify(prevCounts)!==JSON.stringify(counts)){
-      toast.textContent="새 응답이 반영되었습니다. ("+new Date().toLocaleTimeString("ko-KR")+")";
+      $("toast").textContent="새 응답이 반영되었습니다. ("+new Date().toLocaleTimeString("ko-KR")+")";
     }
     prevCounts=counts;
 
     if(!names.length){
-      resultBody.innerHTML='<p class="empty-msg">아직 응답이 없습니다. 첫 번째로 제출해 보세요.</p>';
-      bestBox.innerHTML="";
-      memberList.textContent="";
+      $("resultBody").innerHTML='<p class="empty-msg">아직 응답이 없습니다. 첫 번째로 제출해 보세요.</p>';
+      $("bestBox").innerHTML="";
+      $("memberList").textContent="";
       return;
     }
     var days=Object.keys(counts).map(Number).sort(function(a,b){
@@ -451,77 +680,15 @@
           +'</div>';
     });
     html+="</div>";
-    resultBody.innerHTML=html;
+    $("resultBody").innerHTML=html;
 
     var tops=days.filter(function(d){return counts[d]===max;});
-    bestBox.innerHTML='<div class="best">현재 최다 득표: <b>'
+    $("bestBox").innerHTML='<div class="best">현재 최다 득표: <b>'
       +tops.map(fmt).join(", ")+'</b> ('+max+'명 가능)</div>';
-    memberList.textContent="참여자 "+names.length+"명: "+names.join(", ");
+    $("memberList").textContent="참여자 "+names.length+"명: "+names.map(escapeHtml).join(", ");
   }
 
-  // ===== 로컬 모드 (백엔드 미연결 시) =====
-  function enterLocalMode(){
-    localMode=true;
-    votes=readLocal();
-    syncInfo.textContent="공유 서버 미연결 — 응답이 이 기기에만 저장됩니다";
-    renderResult();
-    updateControls();
-  }
-
-  // ===== Firebase 초기화 및 실시간 구독 =====
-  function initFirebase(){
-    if(!FIREBASE_CONFIG.apiKey||FIREBASE_CONFIG.apiKey==="YOUR_API_KEY"){
-      enterLocalMode();
-      return;
-    }
-    try{
-      firebase.initializeApp(FIREBASE_CONFIG);
-      db=firebase.database();
-    }catch(e){
-      enterLocalMode();
-      return;
-    }
-    var migrated=false;
-    // 연결 상태 표시
-    db.ref(".info/connected").on("value",function(snap){
-      var on=!!snap.val();
-      liveDot.classList.toggle("on",on);
-      syncInfo.textContent=on?"실시간 연결됨":"연결 끊김 — 재연결 중";
-    });
-    // 투표 실시간 구독 (변경 즉시 반영)
-    db.ref(DB_PATH).on("value",function(snap){
-      var data=snap.val()||{};
-      var next={};
-      Object.keys(data).forEach(function(k){
-        var v=data[k];
-        if(v&&v.name&&Array.isArray(v.dates)) next[v.name]=v.dates;
-      });
-      votes=next;
-      // 백엔드 연결 전 이 기기에 저장해 둔 응답이 있으면 서버로 1회 이관
-      if(!migrated){
-        migrated=true;
-        var loc=readLocal();
-        Object.keys(loc).forEach(function(n){
-          if(!next[n]&&Array.isArray(loc[n])&&loc[n].length){
-            db.ref(DB_PATH+"/"+nameKey(n)).set({name:n,dates:loc[n],updatedAt:Date.now()});
-          }
-        });
-        try{localStorage.removeItem(LS_KEY);}catch(e){}
-      }
-      renderResult();
-      updateControls();
-    },function(){
-      syncInfo.textContent="데이터 구독 실패 — DB 규칙을 확인하세요";
-      liveDot.classList.remove("on");
-    });
-  }
-
-  saveBtn.addEventListener("click",saveVote);
-  cancelBtn.addEventListener("click",cancelVote);
-
-  buildCalendar();
-  updateControls();
-  initFirebase();
+  route();
 })();
 </script>
 </body>

@@ -1,5 +1,11 @@
 {
   "rules": {
+    "polls": {
+      "$pollId": {
+        ".read": true,
+        ".write": true
+      }
+    },
     "dinner-2026-09": {
       ".read": true,
       ".write": true
